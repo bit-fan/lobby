@@ -23,7 +23,7 @@ var a = {
 }
 var gameConst = {
     'saboteur': {
-        min: 1, max: 10, entry: 'dbSaboteur'
+        min: 2, max: 10, entry: 'dbSaboteur'
     }
 }
 module.exports = {

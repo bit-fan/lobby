@@ -131,14 +131,7 @@ var dbFunc = {
         return save(newTable);
 
     },
-    createTable: function (tableId, players) {
-        var table = dbFunc.initTable(tableId, players);
-        var a = new db.saboteur(table);
-        return a.save().then(function (data) {
-            console.log('new saboteur', data);
-            return data;
-        })
-    },
+
     getTable: function (tableId) {
         return db.saboteur.findOne({tableId: tableId})
     },
@@ -242,11 +235,12 @@ var dbFunc = {
         }
 
         function checkLink(newLink, map, key, direction) {
+            console.log('newLink, map, key, direction', newLink, map, key, direction);
             var node = map[key];
             if (!node) {
                 return true
             }
-            return newLink == node[direction];
+            return newLink == node.link[direction];
         }
 
         var rightOK = checkLink(newCardInfo.link[0], map, getmatrixKey(x + 1, y), 2);
@@ -256,7 +250,7 @@ var dbFunc = {
         return rightOK && topOK && leftOK && bottomOK;
     },
     /// UPDATE several actions
-    addPathCard: function (profile, serialNo, isRotate, targetX, targetY) {
+    addPathCard: function (socket, profile, serialNo, isRotate, targetX, targetY) {
         var tableId = profile.tableId;
         return dbFunc.getTable(tableId).then(tableData => {
             if (tableData) {
@@ -269,13 +263,13 @@ var dbFunc = {
                         'cards.$.info.y': targetY,
                         'cards.$.info.isRotate': isRotate
                     }).then(done => {
-                        return dbFunc.logAction(tableData, tableId, profile.playerId, 'path', targetX + '#' + targetY, null)
+                        return dbFunc.logAction(socket, tableData, tableId, profile.playerId, 'path', targetX + '#' + targetY, null)
                     })
                 } else return Q.reject('table not found');
             }
         })
     },
-    playRockFallCard: function (profile, serialNo, targetX, targetY) {
+    playRockFallCard: function (socket, profile, serialNo, targetX, targetY) {
         var tableId = profile.tableId;
         return dbFunc.getTable(tableId).then(tableData => {
             if (tableData) {
@@ -291,13 +285,13 @@ var dbFunc = {
                             'cards.$.where': 'removed'
                         })
                     }).then(done => {
-                        return dbFunc.logAction(tableData, tableId, profile.playerId, 'rockFall', targetX + '#' + targetY, null)
+                        return dbFunc.logAction(socket, tableData, tableId, profile.playerId, 'rockFall', targetX + '#' + targetY, null)
                     })
                 } else return Q.reject('table not found');
             }
         })
     },
-    playToolCard: function (profile, serialNo, targetPlayerId, whichTool) {
+    playToolCard: function (socket, profile, serialNo, targetPlayerId, whichTool) {
         var tableId = profile.tableId;
         return dbFunc.getTable(tableId).then(tableData => {
             if (tableData) {
@@ -319,12 +313,12 @@ var dbFunc = {
                     updateData[keyStr] = toAdd;
                     return db.saboteur.update({tableId: tableId, 'players.playerId': targetPlayerId}, updateData)
                 }).then(done => {
-                    return dbFunc.logAction(tableData, tableId, profile.playerId, toAdd ? 'repairTool' : 'breakTool', whichTool, targetPlayerId)
+                    return dbFunc.logAction(socket, tableData, tableId, profile.playerId, toAdd ? 'repairTool' : 'breakTool', whichTool, targetPlayerId)
                 })
             }
         })
     },
-    playRevealCard: function (profile, serialNo, y) {
+    playRevealCard: function (socket, profile, serialNo, y) {
         var tableId = profile.tableId;
         return dbFunc.getTable(tableId).then(tableData => {
             if (tableData || (y !== -2 && y !== 0 && y !== 2)) {
@@ -336,24 +330,24 @@ var dbFunc = {
                     'cards.$.where': 'used',
                 }).then(done => {
                     let position = (y == -2) ? 'top' : (y == 0 ? 'middle' : 'bottom');
-                    return dbFunc.logAction(tableData, tableId, profile.playerId, 'reveal', position, null)
+                    return dbFunc.logAction(socket, tableData, tableId, profile.playerId, 'reveal', position, null)
                 })
             } else return Q.reject();
         })
     },
-    playerDiscardCard: function (profile, serialNo) {
+    playerDiscardCard: function (socket, profile, serialNo) {
         var tableId = profile.tableId;
         return dbFunc.getTable(tableId).then(tableData => {
             if (tableData) {
                 return db.saboteur.update({tableId: tableId, 'cards.serialNo': serialNo}, {
                     'cards.$.where': 'discard',
                 }).then(done => {
-                    return dbFunc.logAction(tableData, tableId, profile.playerId, 'discard', null, null)
+                    return dbFunc.logAction(socket, tableData, tableId, profile.playerId, 'discard', null, null)
                 })
             } else return Q.reject();
         })
     },
-    logAction: function (tableData, tableId, playerId, actionKey, actionStr, target) {
+    logAction: function (socket, tableData, tableId, playerId, actionKey, actionStr, target) {
         var obj = {
             tableId: tableId,
             playerId: playerId,
@@ -454,26 +448,90 @@ var dbSaboteur = {
                     var cardObj = dbFunc.getCardBySerialNo(reqData.cardSerialNo, tableData.cards);
                     var isValid = dbFunc.checkNewPathValid(cardObj, reqData.isRotate, map, reqData.targetX, reqData.targetY);
                     if (isValid) {
-                        return dbFunc.addPathCard(reqData.profile, reqData.cardSerialNo, reqData.isRotate, reqData.targetX, reqData.targetY)
+                        return dbFunc.addPathCard(socket, reqData.profile, reqData.cardSerialNo, reqData.isRotate, reqData.targetX, reqData.targetY)
                     }
                 })
                 break;
             case 'rockFall':
-                return dbFunc.playRockFallCard(reqData.profile, reqData.serialNo, reqData.targetX, reqData.targetY)
+                return dbFunc.playRockFallCard(socket, reqData.profile, reqData.serialNo, reqData.targetX, reqData.targetY)
                 break;
             case 'tool':
-                return dbFunc.playToolCard(reqData.profile, reqData.cardSerialNo, reqData.targetPlayerId, reqData.whichTool)
+                return dbFunc.playToolCard(socket, reqData.profile, reqData.cardSerialNo, reqData.targetPlayerId, reqData.whichTool)
             case 'reveal':
-                return dbFunc.playRevealCard(reqData.profile, reqData.serialNo, reqData.targetY)
+                return dbFunc.playRevealCard(socket, reqData.profile, reqData.serialNo, reqData.targetY)
                 break;
             case 'discard':
-                return dbFunc.playerDiscardCard(reqData.profile, reqData.serialNo);
+                return dbFunc.playerDiscardCard(socket, reqData.profile, reqData.serialNo);
                 break;
         }
         return {data: 'haha'};
     },
     getFoundationInfo: function (reqData, socket) {
-        return constSab;
+        return dbFunc.getTable(reqData.profile.tableId).then(fullTable => {
+            return db.saboteur.update({tableId: reqData.profile.tableId, 'players.playerId': reqData.profile.playerId}, {
+                'players.$.socketId': reqData.profile.socketId,
+            }).then(done => {
+                return constSab;
+            })
+        })
+
+    },
+    getCurrentTableInfo: function (reqData) {
+        return dbFunc.getTable(reqData.profile.tableId).then(fullTable => {
+            var currentTable = {
+                players: fullTable.players.map(item => {
+                    return {
+                        playerId: item.playerId,
+                        seatNo: item.seatNo,
+                        status: item.status
+                    };
+                }),
+                curTurn: dbFunc.getPlayerObjBySeatNo(fullTable.players, fullTable.curTurn) || {},
+                tableId: fullTable.tableId,
+                numCardsinDeck: fullTable.cards.filter(item => {
+                    return item.where == 'deck'
+                }).length,
+                cards: fullTable.cards.filter(item => {
+                    var valid = false;
+                    if (item.where == 'map') {
+                        valid = true;
+                    } else if (item.where == 'hand') {
+                        console.log(item.info, item.info.player, dbFunc.getSeatNoById(fullTable.players, reqData.profile.playerId));
+                        if (item.info.player == dbFunc.getSeatNoById(fullTable.players, reqData.profile.playerId)) {
+                            valid = true;
+                        }
+                    }
+                    return valid
+                }).map(card => {
+                    if (card.cardType == 'goal' && card.info.revealed == false) {
+                        return {
+                            cardId: 'goalBack',
+                            cardType: card.type,
+                            where: 'map',
+                            info: {
+                                x: card.info.x,//if where==map
+                                y: card.info.y,//if where==map
+                            }
+                        }
+                    } else {
+                        return {
+                            cardId: card.cardId,
+                            cardType: card.type,
+                            where: card.where,//deck,hand,discard,map,removed,used
+                            serialNo: card.serialNo,
+                            info: {
+                                x: card.info.x,//if where==map
+                                y: card.info.y,//if where==map
+                                link: card.info.link,
+                                pass: card.info.pass,
+                                isRotate: card.info.isRotate, //if where==map
+                            }
+                        }
+                    }
+                })
+            };
+            return currentTable;
+        });
     },
     getTableInfoForPlayer: function (reqData) {
         return dbFunc.getTable(reqData.profile.tableId).then(fullTable => {

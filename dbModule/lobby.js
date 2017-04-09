@@ -41,7 +41,6 @@ var dbFunc = {
 var socket = {
     getAllGames: function (req, socket) {
         var playerId = req.profile.playerId;
-        sockFunc.updateUsr('player', socket.id, playerId);
         return allGameObj;
     },
     getAllGame1s: function () {
@@ -64,7 +63,7 @@ var socket = {
     joinGame: function (req, socket) {
         console.log('req', req);
         var playerId = req.profile.playerId;
-        sockFunc.updateUsr('game', socket.id, playerId, req.gameId);
+        // sockFunc.updateUsr('game', socket.id, playerId, req.gameId);
         return {
             gameId: req.gameId,
             minPlayer: gameConst[req.gameId].min,
@@ -85,7 +84,8 @@ var socket = {
                     tableData.players.push({
                         'playerId': reqData.profile.playerId,
                         iconHash: reqData.profile.iconHash,
-                        isReady: false
+                        isReady: false,
+                        socketId: socket.id,
                     });
                     console.log('update', tableData.players);
                     return db.table.update({
@@ -192,7 +192,6 @@ var socket = {
             var player = table.players.getKeyItem('playerId', req.profile.playerId);
 
             var playerId = req.profile.playerId;
-            sockFunc.updateUsr('table', socket.id, playerId, table.entryToken);
             if (player.length == 1) {
                 return {nextPage: '/playGame?entryToken=' + table.entryToken, tableToken: table.entryToken};
             }

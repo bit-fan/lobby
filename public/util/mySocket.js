@@ -25,8 +25,9 @@ mySocket.prototype.on = function (key, func) {
         func.call(this, a);
     })
 }
-mySocket.prototype.createGameSocket = function (gameId, tableId) {
+mySocket.prototype.createGameSocket = function (gameId, tableId, funcObj) {
     var self = this;
+    funcObj = funcObj || {};
     this.handleSucFunc = {};
     this.handleFailFunc = {};
 
@@ -63,6 +64,10 @@ mySocket.prototype.createGameSocket = function (gameId, tableId) {
         console.log('key', logData);
         var newLine = $('<div>').html(JSON.stringify(logData));
         $('#gameSystemLogContent').append(newLine);
+        if (funcObj[gameId + '_log']) {
+            funcObj[gameId + '_log'].call(this, logData);
+
+        }
     });
 
     self.socket.on('_' + gameId, res);

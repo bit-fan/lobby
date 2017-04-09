@@ -23,7 +23,8 @@ db.init = function (mongoose) {
         players: [{
             playerId: String,
             iconHash: String,
-            isReady: Boolean
+            isReady: Boolean,
+            socketId: String,
         }],
         entryToken: String,
         gameId: String,
@@ -34,7 +35,7 @@ db.init = function (mongoose) {
         createdTime: {type: Date, 'default': Date.now}
     }));
     db.saboteurLog = mongoose.model('SaboteurLog', mongoose.Schema({
-        tableId: {type: Number, unique: true, required: true, index: true},
+        tableId: {type: Number, required: true},
         createdTime: {type: Date, 'default': Date.now},
         playerId: String,
         target: String,

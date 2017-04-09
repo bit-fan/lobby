@@ -6,11 +6,6 @@ var dbSaboteur = require('../dbModule/dbSaboteur.js');
 var commonKeyMapping = {}
 var gameKeyMapping = {};
 
-var allUsr = {
-    games: {},
-    table: {},
-    player: {}
-};
 function addCommonSocketKey(obj) {
     for (var key in obj) {
         // console.log('added', key);
@@ -35,12 +30,6 @@ addCommonSocketKey(dbPlayer.socket);
 addCommonSocketKey(lobby.socket);
 addCommonSocketKey(dbTable.socket);
 addGameSocketKey('saboteur', dbSaboteur.socket);
-
-// dbSaboteur.dbFunc.initTable('1', [{"playerId" : "Anna",
-//     "iconHash" : "97a9d330e236c8d067f01da1894a5438"}, {"playerId" : "Anna1",
-//     "iconHash" : "97a9d330e236c8d067f01da1894a5438"}, {"playerId" : "Anna2",
-//     "iconHash" : "97a9d330e236c8d067f01da1894a5438"}, {"playerId" : "Anna3",
-//     "iconHash" : "97a9d330e236c8d067f01da1894a5438"}],'ghj');
 
 function addListener(socket, key) {
     socket.on(key, function (req) {
@@ -112,43 +101,9 @@ sock.setup = function (io, socket) {
         addGameListener(socket, gameName);
     }
     socket.on('disconnect', function () {
-        socket.broadcast.emit('playerLeave', allUsr[socket.id]);
-        delete allUsr[socket.id];
+        // socket.broadcast.emit('playerLeave', allUsr[socket.id]);
+        // delete allUsr[socket.id];
     });
 }
-sock.getAllUsr = function () {
-    return allUsr;
-}
-sock.updateUsr = function (type, sockId, playerId, data) {
-    console.log('before allUsr', allUsr);
-    switch (type) {
-        case 'player':
-            allUsr.player[sockId] = allUsr.player[sockId] || {};
-            allUsr.player[sockId].id = playerId;
-            break;
-        case 'game':
-            var oriGame = allUsr.player[sockId].game;
-            if (oriGame) {
-                delete allUsr.game[oriGame][sockId];
-            }
-            allUsr.player[sockId].game = data;
-            allUsr.game = allUsr.game || {};
-            allUsr.game[data] = allUsr.game[data] || {};
-            allUsr.game[data][sockId] = true;
-            break;
-        case 'table':
-            var oriTable = allUsr.player[sockId].table;
-            if (oriGame) {
-                delete allUsr.table[oriTable][sockId];
-            }
-            allUsr.player[sockId].table = data;
-            allUsr.table[data] = allUsr.table[data] || {};
-            allUsr.table[data][sockId] = true;
-            break;
-    }
-    console.log('after allUsr', allUsr);
-}
-sock.updateAllUsr = function (newUsr) {
-    allUsr = newUsr;
-}
+
 module.exports = sock;

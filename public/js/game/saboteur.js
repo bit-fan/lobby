@@ -7,59 +7,37 @@ require(['js/init'], function (tool) {
     if (!skt) {
         skt = new mySocket(tool.io, tool.io(serverLocalIp + ':5728'));
     }
-    //tbd in future
-    $().setCookie('tableId', 1, 1);
 
-
-    skt.updateProfile({
-        playerId: $().getCookie('playerId'),
-        iconHash: $().getCookie('iconHash'),
-        tableId: $().getCookie('tableId'),
-    })
-    tool.chat.setup(skt.socket, {
-        playerId: $().getCookie('playerId'),
-        tableId: $().getCookie('tableId'),
-        gameId: 'saboteur'
-    });
-    ///// init some parameters
-    var gameSkt = skt.createGameSocket('saboteur', $().getCookie('tableId'));
-    var fondationData = {cardInfo: {}};
-    var gameData = {
-        map: {}, currentAction: {}, curTurn: null,
-        sound: {
-            addPath: $('<audio>', {src: 'src/sound/saboteur/addPath.wav'}),
-            breakLantern: $('<audio>', {src: 'src/sound/saboteur/breakLantern.wav'}),
-            breakPick: $('<audio>', {src: 'src/sound/saboteur/breakPick.wav'}),
-            breakWagon: $('<audio>', {src: 'src/sound/saboteur/breakWagon.wav'}),
-            repairTool: $('<audio>', {src: 'src/sound/saboteur/repairTool.wav'}),
-            reveal: $('<audio>', {src: 'src/sound/saboteur/reveal.wav'}),
-            rockFall: $('<audio>', {src: 'src/sound/saboteur/rockFall.wav'}),
-            discard: $('<audio>', {src: 'src/sound/saboteur/discard.wav'}),
-            //$(au)[0].play();
-        },
-        showPreview: false
-    };
-    const imgPrefix = 'src/img/saboteur/';
-    init();
-
-    getFoundationData(getTableInfoForPlayer);
-
-    function init() {
-        $('#gamePanel').on('click', 'img.idenIcon', function (event) {
-            if (gameData.currentAction.choosingOtherPlayer) {
-                return true;
-            }
-            var player = $(this).attr('playerId');
-            console.log(player);
-            if (player && fondationData && player != $().getCookie('playerId')) {
-                fondationData.players[player].guessSab = fondationData.players[player].guessSab || 0;
-                fondationData.players[player].guessSab = (fondationData.players[player].guessSab + 1) % 3
-                drawPlayer(fondationData.players[player]);
-            }
+    setupGame();
+    function setupGame() {
+        if (!skt.socket.connected) {
+            return setTimeout(function () {
+                setupGame()
+            }, 100);
+        }
+        console.log(skt, skt.socket, skt.socket.n);
+        $().setCookie('socketId', skt.socket.id, 1);
+        skt.updateProfile({
+            playerId: $().getCookie('playerId'),
+            iconHash: $().getCookie('iconHash'),
+            tableId: $().getCookie('tableId'),
+            socketId: $().getCookie('socketId'),
         })
-        //listen server update
-        gameSkt.listen('saboteur_log', function (actionData) {
+        tool.chat.setup(skt.socket, {
+            playerId: $().getCookie('playerId'),
+            tableId: $().getCookie('tableId'),
+            gameId: 'saboteur'
+        });
+        init();
+
+    }
+
+
+    ///// init some parameters
+    var funcObj = {
+        'saboteur_log': function (actionData) {
             console.log('actionData', actionData);
+            getTableInfoForPlayer();
             switch (actionData.actionKey) {
                 case 'addPath':
                     gameData.sound.addPath[0].play();
@@ -87,7 +65,75 @@ require(['js/init'], function (tool) {
                     break;
 
             }
-        });
+        }
+    }
+    var gameSkt = skt.createGameSocket('saboteur', $().getCookie('tableId'), funcObj);
+    console.log(gameSkt);
+    var fondationData = {cardInfo: {}};
+    var gameData = {
+        map: {}, currentAction: {}, curTurn: null,
+        sound: {
+            addPath: $('<audio>', {src: 'src/sound/saboteur/addPath.wav'}),
+            breakLantern: $('<audio>', {src: 'src/sound/saboteur/breakLantern.wav'}),
+            breakPick: $('<audio>', {src: 'src/sound/saboteur/breakPick.wav'}),
+            breakWagon: $('<audio>', {src: 'src/sound/saboteur/breakWagon.wav'}),
+            repairTool: $('<audio>', {src: 'src/sound/saboteur/repairTool.wav'}),
+            reveal: $('<audio>', {src: 'src/sound/saboteur/reveal.wav'}),
+            rockFall: $('<audio>', {src: 'src/sound/saboteur/rockFall.wav'}),
+            discard: $('<audio>', {src: 'src/sound/saboteur/discard.wav'}),
+            // $(au)[0].play();
+        },
+        showPreview: false
+    };
+    const imgPrefix = 'src/img/saboteur/';
+
+
+    function init() {
+        getFoundationData(getTableInfoForPlayer);
+        $('#gamePanel').on('click', 'img.idenIcon', function (event) {
+            if (gameData.currentAction.choosingOtherPlayer) {
+                return true;
+            }
+            var player = $(this).attr('playerId');
+            console.log(player);
+            if (player && fondationData && player != $().getCookie('playerId')) {
+                fondationData.players[player].guessSab = fondationData.players[player].guessSab || 0;
+                fondationData.players[player].guessSab = (fondationData.players[player].guessSab + 1) % 3
+                drawPlayer(fondationData.players[player]);
+            }
+        })
+        //listen server update
+        // gameSkt.listen('saboteur_log', function (actionData) {
+        //     console.log('actionData', actionData);
+        //     getTableInfoForPlayer();
+        //     switch (actionData.actionKey) {
+        //         case 'addPath':
+        //             gameData.sound.addPath[0].play();
+        //             break;
+        //         case 'rockFall':
+        //             gameData.sound.rockFall[0].play();
+        //             break;
+        //         case 'reveal':
+        //             gameData.sound.reveal[0].play();
+        //             break;
+        //         case 'repairTool':
+        //             gameData.sound.addPath[0].play();
+        //             break;
+        //         case 'breakTool':
+        //             if (actionData.actionStr == 'pick') {
+        //                 gameData.sound.breakPick[0].play();
+        //             } else if (actionData.actionStr == 'lantern') {
+        //                 gameData.sound.breakLantern[0].play();
+        //             } else if (actionData.actionStr == 'wagon') {
+        //                 gameData.sound.breakWagon[0].play();
+        //             }
+        //             break;
+        //         case 'discard':
+        //             gameData.sound.addPath[0].play();
+        //             break;
+        //
+        //     }
+        // });
 
         //player confirm and submit action
         $('#gamePanel').on('click', '#submitActionBtn', function () {
@@ -281,6 +327,7 @@ require(['js/init'], function (tool) {
             var y0 = res.mapSize.y0;
             gameData.mapSize = res.mapSize;
             gameData.myHand = [];
+            gameData.map = [];
             gameData.curTurn = res.curTurn.playerId;
             res.cards.forEach(item => {
                 if (item.where == 'map') {
@@ -314,6 +361,7 @@ require(['js/init'], function (tool) {
             return
         }
         var mapDom = $('#desktop');
+        $(mapDom).html('');
         // var numRow = gameData.mapSize.y1 - gameData.mapSize.y0 + 1;
         // var numCol = gameData.mapSize.x1 - gameData.mapSize.x0 + 1;
         var cardWidth = Math.floor($('#desktop').innerWidth() / (gameData.mapSize.x1 - gameData.mapSize.x0 + 1)) - 1;
@@ -347,9 +395,9 @@ require(['js/init'], function (tool) {
                     //.text(i + '#' + j);
                     $(newDiv).append(empty)
                 }
-                $('#desktop').append(newDiv);
+                $(mapDom).append(newDiv);
             }
-            $('#desktop').append('<br>');
+            $(mapDom).append('<br>');
         }
     }
 
