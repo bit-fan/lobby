@@ -1,0 +1,9 @@
+script.
+    function changeLang(val) {
+        console.log(val);
+        $().setLang(val)
+    }
+
+select(onchange="changeLang(this.value)")
+    option(value=0) EN
+    option(value=1) 中文

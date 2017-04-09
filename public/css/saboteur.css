@@ -1,0 +1,79 @@
+@font-face {
+    font-family: disneyFont;
+    src: url('./font/NewWaltDisney1.ttf');
+}
+
+#gameTile {
+    font-family: disneyFont;
+}
+
+.otherPlayer {
+    outline: solid 1px darkgreen;
+}
+
+.playerStatusIcon {
+    width: 25px;
+    height: 25px;
+    display: block;
+}
+
+.otherPlayer .inlineBlk {
+    vertical-align: bottom;
+}
+
+.fillBlack {
+    fill: #B5B5B5
+}
+
+#cardPreview {
+    display: block;
+    position: absolute;
+    width: 200px;
+    height: 400px;
+    right: calc(12% - 100px);
+    top: calc(50% - 200px);
+    z-index: 100
+}
+
+@keyframes shadowRed {
+    0% {
+        box-shadow: 0 0 5px 5px mediumvioletred;
+    }
+    50% {
+        box-shadow: 0 0 0 0 palevioletred;
+    }
+    100% {
+        box-shadow: 0 0 5px 5px mediumvioletred;
+    }
+}
+
+.boxShadowAniRed {
+    animation-name: shadowRed;
+    animation-duration: 1s;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+}
+
+@keyframes shadowGreen {
+    0% {
+        box-shadow: 0 0 5px 5px green;
+    }
+    50% {
+        box-shadow: 0 0 0 0 lawngreen;
+    }
+    100% {
+        box-shadow: 0 0 5px 5px green;
+    }
+}
+
+.boxShadowAniGreen {
+    animation-name: shadowGreen;
+    animation-duration: 1s;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+}
+
+#myhand button {
+    box-shadow: 0px 0px 5px 5px #dec7cf, inset 0px 0px 3px 3px #ff005b;
+    background: repeating-radial-gradient(#b1c7bf, #e3cdcd 10%);
+}

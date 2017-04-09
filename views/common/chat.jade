@@ -1,0 +1,30 @@
+style.
+    #chatLogDiv .panel-body .tab-pane {
+        overflow: auto;
+    }
+#chatLogDiv.panel.panel-success
+    .panel-heading
+        ul.nav.nav-tabs.common-nav-tabs
+            li
+                a.chatCate(data-toggle="tab", href="#mySystemLog" tt='system')
+            li
+                a.chatCate.active(data-toggle="tab", href="#worldChatLog" tt='world')
+            li
+                a.chatCate(data-toggle="tab", href="#myGameChatLog" tt='game')
+            li
+                a.chatCate(data-toggle="tab", href="#myTableChatLog" tt='my Table')
+            li
+                a.chatCate(data-toggle="tab", href="#privateChatLog" tt='private')
+    .panel-body
+        div.tab-content
+            #mySystemLog.tab-pane.fade
+                #gameSystemLogContent
+            #worldChatLog.tab-pane.fade.active.in
+                #worldChatContent
+            #myGameChatLog.tab-pane.fade
+                #gameChatLogContent
+            #myTableChatLog.tab-pane.fade
+                #tableChatLogContent
+            #privateChatLog.tab-pane.fade
+                #privateChatLogContent
+

@@ -1,0 +1,67 @@
+extends ../layout
+block content
+    .col-sm-9
+        .panel.panel-warning
+            .panel-heading
+                #gameTile
+            .panel-body
+                table#gamePanel(style='width:100%')
+                    tbody
+                        tr
+                            td
+                                #deckInfo.inlineBlk
+                            td
+                                .otherPlayer.inlineBlk(seatNo=5)
+                            td
+                                .otherPlayer.inlineBlk(seatNo=2)
+                            td
+                                .otherPlayer.inlineBlk(seatNo=8)
+                            td
+                                #scoreInfo.inlineBlk
+                        tr
+                            td(style='width:20%')
+                                .otherPlayer(seatNo=9)
+                            td(colspan=3, rowspan=3, style='width:60%;padding:10px')
+                                #desktop.boxShadowBlue
+                            td(style='width:20%')
+                                .otherPlayer(seatNo=7)
+                        tr
+                            td
+                                .otherPlayer(seatNo=3)
+                            td
+                                .otherPlayer(seatNo=4)
+                        tr
+                            td
+                                .otherPlayer(seatNo=6)
+                            td
+                                .otherPlayer(seatNo=0)
+                        tr
+                            td
+                            td(colspan=2)
+                                #setting
+                                #myhand
+                                    .inlineBlk.otherPlayer(seatNo=1)
+                                    #myCards.inlineBlk
+                                    .inlineBlk
+                                        button#rotateBtn.collapse(tt='rotate')
+                                        button#discardBtn.collapse(tt='discard')
+                                        button#submitActionBtn.collapse(tt='confirm')
+
+    .col-sm-3
+        include ../common/chat
+    img#cardPreview.collpase
+    script(type='text/javascript' src='/js/game/saboteur.js')
+    link(rel='stylesheet', href='/css/saboteur.css')
+
+    #playerHorDiv.collapse
+        div
+            .inlineBlk
+                img.idenIcon
+            .inlineBlk
+                canvas.playerIcon(height='50' width='50')
+            .inlineBlk
+                img.playerStatusIcon.W
+                img.playerStatusIcon.P
+                img.playerStatusIcon.L
+        div.text-center
+            .playerId

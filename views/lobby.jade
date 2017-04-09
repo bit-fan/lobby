@@ -1,0 +1,65 @@
+extends layout
+block content
+    script.
+        var serverIp = '#{serverIP}'
+        var serverLocalIp = '#{serverLocalIP}'
+    .col-md-2
+        #playerInfo(style='height:200px')
+        #gamesDiv.panel-group
+
+    #allGamePanel.col-md-8
+        include ./common/language
+
+        .row
+            | announcement
+        .panel.panel-danger
+            .panel-heading
+                .panel-title
+                    label(tt='all table')
+                    .pull-right
+                        a.margin-right-5(tt='friend')
+                        a.margin-right-5(tt='started')
+                        a.margin-right-5(tt='available')
+                        a.margin-right-5(tt='all')
+            .panel-body
+                #gamesPanel
+                    table#allGameTable.col-md-12.text-center
+                        thead
+                            tr
+                                th(style='width:100px' tt='table Id')
+                                th(style='width:100px' tt='status')
+                                th(style='width:calc(100% -300px)' tt='player')
+                                th(style='width:100px' tt='action')
+                                //th(tt='table Id')
+                                //th(tt='status')
+                                //th(tt='player')
+                                //th(tt='action')
+                        tbody
+
+    .col-md-2
+        include ./common/chat
+
+    script(type='text/javascript' src='/js/lobby.js')
+    #lobbyTableTemp.collapse
+        .tblId
+        tr
+            td.tblId
+            td.tblStatus
+            td.tblPlayer
+            td.tblAction
+    //#createTableTemp.collapse
+    //	button.btn.btn-success.createTblBtn(tt='create')
+    table#tableTr.collapse
+        tr
+            td.tableIdTd
+            td.tableStatusTd
+            td.tablePlayerTd
+            td
+                button.tableJoin.a(tt='join')
+                button.tableLeave.a(tt='leave')
+                button.playerReady.collapse(tt='ready')
+                button.playerNotReady.collapse(tt='not ready')
+    #tablePlayerTd.tablePlayerDiv.collapse
+        div
+            canvas(height='50' width='50')
+        text
