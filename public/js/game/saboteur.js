@@ -320,15 +320,41 @@ require(['js/init'], function (tool) {
         });
     }
 
+    function getCommonTableData() {
+        gameSkt.send('getCommonTableData', {}, function (res) {
+            gameData.map = [];
+            gameData.curTurn = res.curTurn;
+            if (res.curTurn == $().getCookie('playerId')) {
+                getPlayHandData();
+            }
+            res.cards.forEach(item => {
+                if (item.where == 'map') {
+                    var keyStr = item.info.x + '#' + item.info.y;
+                    gameData.map[keyStr] = item;
+                } else if (item.where == 'hand') {
+                    gameData.myHand.push(item);
+                }
+            })
+            drawMap();
+        })
+    }
+
+    function getPlayHandData() {
+        gameSkt.send('getPlayHandData', {}, function (res) {
+            gameData.myHand = res.handCards.map(item => {
+                return item;
+            })
+            gameData.newCard = res.newCard;
+        });
+    }
+
     function getTableInfoForPlayer() {
         gameSkt.send('getTableInfoForPlayer', {}, function (res) {
             console.log('getTableInfoForPlayer', res);
-            var x0 = res.mapSize.x0;
-            var y0 = res.mapSize.y0;
             gameData.mapSize = res.mapSize;
             gameData.myHand = [];
             gameData.map = [];
-            gameData.curTurn = res.curTurn.playerId;
+            gameData.curTurn = res.curTurn;
             res.cards.forEach(item => {
                 if (item.where == 'map') {
                     var keyStr = item.info.x + '#' + item.info.y;

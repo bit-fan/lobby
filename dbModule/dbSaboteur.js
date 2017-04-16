@@ -103,7 +103,12 @@ var dbFunc = {
             for (var player = 0; player < newTable.players.length; player++) {
                 // console.log('a new one');
                 var a = dbFunc.playerGetCard(newTable.players[player].seatNo, newTable.cards);
-                newTable.cards = a;
+                if (a.newCard) {
+                    newTable.cards = a.deck;
+                } else {
+                    //no new card;
+                }
+
             }
         }
         newTable.cards.forEach(card => {
@@ -138,9 +143,19 @@ var dbFunc = {
     updateTable: function (tableId, newData) {
         return db.saboteur.findOneAndUpdate({tableId: tableId}, newData).exec();
     },
+    getCardFromDeck: function (deck) {
+        var availDeck = deck.filter(item => {
+            return item.where == 'deck';
+        });
+        if (availDeck && availDeck.length > 1) {
+            var rand = Math.floor(Math.random() * availDeck.length);
+            return availDeck[rand];
+        } else return null;
+    },
     playerGetCard: function (seatNo, deck) {
         var startLine = Math.floor(Date.now() + Math.random() * deck.length) % deck.length;
         var found = false, test = (startLine + 1) % deck.length;
+        var foundNum = null;
         while (!found && test != startLine) {
             // console.log('teststartLine', test, startLine);
             if (deck[test].where == 'deck') {
@@ -151,6 +166,7 @@ var dbFunc = {
                     // console.log('');
                 }
                 deck[test].where = 'hand';
+                foundNum = deck[test].serialNo;
                 // console.log('found', deck[test].cardId, deck[test].serialNo, seatNo);
                 // console.log('after', deck[test - 1], deck[test], deck[test + 1]);
                 found = true;
@@ -158,7 +174,9 @@ var dbFunc = {
                 test = (test + 1) % deck.length
             }
         }
-        return deck
+        return {
+            deck: deck, newCard: foundNum
+        }
     },
     getSeatNoById: function (players, playerId) {
         var num = null;
@@ -170,28 +188,34 @@ var dbFunc = {
             })
         }
         return num;
-    },
+    }
+
+    ,
     getPlayerObjBySeatNo: function (players, seatNo) {
         var resultArr = players.filter(player => {
             return player.seatNo == seatNo;
         })
         if (resultArr && resultArr.length == 1) return resultArr[0];
         return null;
-    },
+    }
+    ,
     getPlayerObjByPlayerId: function (players, playerId) {
         var resultArr = players.filter(player => {
             return player.playerId == playerId;
         })
         if (resultArr && resultArr.length == 1) return resultArr[0];
         return null;
-    },
+    }
+    ,
 
     getReversePass: function (pass) {
         return [pass[0], pass[1], pass[4], pass[5], pass[2], pass[3]]
-    },
+    }
+    ,
     getReverseLink: function (link) {
         return [link[2], link[3], link[0], link[1]]
-    },
+    }
+    ,
     generateMap: function (deck) {
         var mapObj = {};
         deck.cards.forEach(node => {
@@ -208,19 +232,22 @@ var dbFunc = {
             }
         })
         return mapObj;
-    },
+    }
+    ,
     getCardBySerialNo: function (num, deck) {
         if (!deck) return null;
         var result = deck.getKeyItem('serialNo', num);
         return result ? result[0] : null;
-    },
+    }
+    ,
     getMapCardSerialNoByMatrix: function (deck, x, y) {
         var resultArr = deck.filter(card => {
             return (card.cardType == 'map' && card.info.where == 'map' && card.info.x == x && card.info.y == y)
         })
         if (resultArr && resultArr.length == 1) return resultArr[0];
         return null;
-    },
+    }
+    ,
 
     checkNewPathValid: function (newCard, isRotate, map, x, y) {
         if (newCard.cardType != 'map')return false;
@@ -248,7 +275,8 @@ var dbFunc = {
         var leftOK = checkLink(newCardInfo.link[2], map, getmatrixKey(x - 1, y), 0);
         var bottomOK = checkLink(newCardInfo.link[3], map, getmatrixKey(x, y + 1), 1);
         return rightOK && topOK && leftOK && bottomOK;
-    },
+    }
+    ,
     /// UPDATE several actions
     addPathCard: function (socket, profile, serialNo, isRotate, targetX, targetY) {
         var tableId = profile.tableId;
@@ -268,7 +296,8 @@ var dbFunc = {
                 } else return Q.reject('table not found');
             }
         })
-    },
+    }
+    ,
     playRockFallCard: function (socket, profile, serialNo, targetX, targetY) {
         var tableId = profile.tableId;
         return dbFunc.getTable(tableId).then(tableData => {
@@ -290,7 +319,8 @@ var dbFunc = {
                 } else return Q.reject('table not found');
             }
         })
-    },
+    }
+    ,
     playToolCard: function (socket, profile, serialNo, targetPlayerId, whichTool) {
         var tableId = profile.tableId;
         return dbFunc.getTable(tableId).then(tableData => {
@@ -317,7 +347,8 @@ var dbFunc = {
                 })
             }
         })
-    },
+    }
+    ,
     playRevealCard: function (socket, profile, serialNo, y) {
         var tableId = profile.tableId;
         return dbFunc.getTable(tableId).then(tableData => {
@@ -334,7 +365,8 @@ var dbFunc = {
                 })
             } else return Q.reject();
         })
-    },
+    }
+    ,
     playerDiscardCard: function (socket, profile, serialNo) {
         var tableId = profile.tableId;
         return dbFunc.getTable(tableId).then(tableData => {
@@ -346,25 +378,50 @@ var dbFunc = {
                 })
             } else return Q.reject();
         })
-    },
+    }
+    ,
     logAction: function (socket, tableData, tableId, playerId, actionKey, actionStr, target) {
-        var obj = {
+        var newSeatNo = (tableData.curTurn + 1) % tableData.players.length;
+        var cardObj = dbFunc.getCardFromDeck(tableData.cards);
+        var prom = null;
+        var logObj = {
             tableId: tableId,
             playerId: playerId,
             target: target,
             actionKey: actionKey,
             actionStr: actionStr
         };
-        var newRecord = new db.saboteurLog(obj);
-        return newRecord.save().then(function (data) {
-            dbChatLog.broadcast('saboteur_log', obj, socket, tableData.players.map(item => {
-                return item.socketId
-            }));
-            return data;
-        }, err => {
-            console.log('create err', err);
+        if (cardObj) {
+            prom = db.saboteur.update({
+                tableId: tableId,
+                'cards.serialNo': cardObj.serialNo
+            }, {
+                'cards.$.where': 'player',
+                'cards.$.info.player': newSeatNo,
+                curTurn: newSeatNo,
+            })
+        } else {
+            prom = db.saboteur.update({
+                tableId: tableId
+            }, {
+                curTurn: newSeatNo,
+            })
+        }
+
+        return Q.resolve(prom).then(ok => {
+            var newRecord = new db.saboteurLog(logObj);
+            return newRecord.save()
         })
-    },
+            .then(function (data) {
+                dbChatLog.broadcast('saboteur_log', logObj, socket, tableData.players.map(item => {
+                    return item.socketId
+                }));
+                return data;
+            }, err => {
+                console.log('create err', err);
+            })
+    }
+    ,
     checkCompletePath: function (map) {
         var pathArr = [{
             x: 0, y: 0, pass: [true, true, true, true, true, true], entry: [true, true, true, true]
@@ -468,13 +525,37 @@ var dbSaboteur = {
     },
     getFoundationInfo: function (reqData, socket) {
         return dbFunc.getTable(reqData.profile.tableId).then(fullTable => {
-            return db.saboteur.update({tableId: reqData.profile.tableId, 'players.playerId': reqData.profile.playerId}, {
+            return db.saboteur.update({
+                tableId: reqData.profile.tableId,
+                'players.playerId': reqData.profile.playerId
+            }, {
                 'players.$.socketId': reqData.profile.socketId,
             }).then(done => {
                 return constSab;
             })
         })
 
+    },
+    getPlayHandData: function (reqData) {
+        return dbFunc.getTable(reqData.profile.tableId).then(fullTable => {
+            var cards = fullTable.cards.filter(item => {
+                var valid = false;
+                if (item.where == 'hand') {
+                    console.log(item.info, item.info.player, dbFunc.getSeatNoById(fullTable.players, reqData.profile.playerId));
+                    if (item.info.player == dbFunc.getSeatNoById(fullTable.players, reqData.profile.playerId)) {
+                        valid = true;
+                    }
+                }
+                return valid
+            }).map(card => {
+                return {
+                    cardId: card.cardId,
+                    cardType: card.type,
+                    serialNo: card.serialNo,
+                }
+            })
+            return {handCards: cards, newCard: fullTable.newCard};
+        })
     },
     getCurrentTableInfo: function (reqData) {
         return dbFunc.getTable(reqData.profile.tableId).then(fullTable => {
