@@ -28,8 +28,10 @@
 #cardPreview {
     display: block;
     position: absolute;
-    width: 200px;
-    height: 400px;
+    max-width: 200px;
+    max-height: 400px;
+    width: auto;
+    height: auto;
     right: calc(12% - 100px);
     top: calc(50% - 200px);
     z-index: 100

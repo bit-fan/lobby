@@ -104,3 +104,6 @@ body {
     box-shadow: #2b542c 0 0 5px 5px;
 }
 
+.logLine {
+    word-wrap: break-word;
+}

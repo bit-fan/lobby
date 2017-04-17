@@ -40,7 +40,7 @@
                         addNewChat('privateChat', '#privateChatLogContent', content);
                     });
                 }
-            },
+            }
         };
         return chat;
     });

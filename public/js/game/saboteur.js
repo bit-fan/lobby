@@ -163,7 +163,7 @@ require(['js/init'], function (tool) {
                 if (fondationData.cardInfo && fondationData.cardInfo[cardId]) {
                     $('#cardPreview').removeClass('collapse');
                     gameData.showPreview = true;
-                    $('#cardPreview').attr('src', imgPrefix + fondationData.cardInfo[cardId].img);
+                    $('#cardPreview').attr('src', imgPrefix + fondationData.cardInfo[cardId].img).fadeOut(2000);
                 }
             }
             return true;
