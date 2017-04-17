@@ -16,8 +16,9 @@ block content
                         .form-group
                             label.control-label(tt='ID')
                             .form-control
-                                input#signUpID
-                                a#checkValidPlayerName(tt='check')
+                                input#signUpID.margin-right-5
+                                a#checkValidPlayerName.margin-right-5(tt='check')
+                                label#checkPlayerNameResult
                         .form-group
                             label.control-label(tt='password')
                             input#signUpPassword.form-control(type='password')
@@ -25,6 +26,7 @@ block content
                             label.control-label(tt='password')
                             input#signUpPassword1.form-control(type='password')
                         button#submitSignUp(tt='submit')
+                        label#signupResult
                     #signIn.tab-pane.fade.in.active
                         .form-group
                             label.control-label(tt='ID')

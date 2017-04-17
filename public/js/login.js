@@ -1,7 +1,7 @@
 require(['js/init'], function (tool) {
     console.log('tool', tool);
     var skt = new mySocket(tool.io, tool.io(serverIp + ':80'));
-    if(!skt){
+    if (!skt) {
         skt = new mySocket(tool.io, tool.io(serverLocalIp + ':5728'));
     }
     console.log(tool.io, skt, serverIp);
@@ -10,12 +10,19 @@ require(['js/init'], function (tool) {
     // })
 
     $('#checkValidPlayerName').on('click', function () {
+        $('#checkPlayerNameResult').html('');
         var name = $('#signUpID').val();
         skt.send('checkPlayerName', name, function (res) {
             console.log('res', res);
+            if (res == 0) {
+                $('#checkPlayerNameResult').text('name is valid').addClass('text-success').removeClass('text-danger');
+            } else {
+                $('#checkPlayerNameResult').text('name is taken').addClass('text-danger').removeClass('text-success');
+            }
         })
     })
     $('#submitSignUp').on('click', function () {
+        $('#signupResult').html('');
         var name = $('#signUpID').val();
         var pass = $('#signUpPassword').val();
         console.log(name, pass);
@@ -23,6 +30,10 @@ require(['js/init'], function (tool) {
             name: name, password: pass
         }, function (res) {
             console.log('res', res);
+            $('#signupResult').tt('success').addClass('text-success').removeClass('text-danger');
+        }, function (err) {
+            console.log('err', err);
+            $('#signupResult').tt('signup failed').addClass('text-danger').removeClass('text-success');
         })
     })
     $('#submitSignIn').on('click', function () {

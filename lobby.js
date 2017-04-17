@@ -58,8 +58,8 @@ app.use(function (err, req, res, next) {
 
 
 var debug = require('debug')('saboteur:server');
-var socketHandler = require('./util/socketHandler');
-var util = require('./util/util');
+var socketHandler = require('./Server/util/socketHandler');
+var util = require('./Server/util/util');
 util.init();
 
 var dbGeneral = require('./dbModule/general');

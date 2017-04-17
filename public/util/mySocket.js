@@ -15,7 +15,7 @@ mySocket.prototype.send = function (key, data, success, fail) {
         if (a.status == 200) {
             success ? success.call(this, a.data) : '';
         } else {
-            fail ? fail.call(this.a) : '';
+            fail ? fail.call(this, a) : '';
         }
     })
 }

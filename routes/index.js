@@ -4,9 +4,9 @@ var dbPlayer = require('./../dbModule/dbPlayer');
 var dbTable = require('./../dbModule/dbTable');
 var dbLobby = require('./../dbModule/lobby');
 var Q = require('q');
-var app = require('../app');
+var app = require('../lobby');
 // var player = require('../bin/util/player');
-var util = require('./../util/util');
+var util = require('./../Server/util/util');
 var db = require('./../Server/schema');
 
 /* GET home page. */

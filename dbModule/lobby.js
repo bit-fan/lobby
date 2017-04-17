@@ -3,9 +3,9 @@
  */
 var db = require('../Server/schema');
 var Q = require('q');
-var util = require('../util/util');
-var app = require('../app');
-var sockFunc = require('../Util/socketHandler');
+var util = require('../Server/util/util');
+var app = require('../lobby');
+var sockFunc = require('../Server/util/socketHandler');
 const allGameObj = require('../Server/const/games').allGames;
 const gameConst = require('../Server/const/games').gameConst;
 util.init();

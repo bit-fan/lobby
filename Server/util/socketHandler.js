@@ -1,8 +1,8 @@
 var Q = require('q');
-var dbPlayer = require('../dbModule/dbPlayer.js');
-var lobby = require('../dbModule/lobby.js');
-var dbTable = require('../dbModule/dbTable.js');
-var dbSaboteur = require('../dbModule/dbSaboteur.js');
+var dbPlayer = require('../../dbModule/dbPlayer.js');
+var lobby = require('../../dbModule/lobby.js');
+var dbTable = require('../../dbModule/dbTable.js');
+var dbSaboteur = require('../../dbModule/dbSaboteur.js');
 var commonKeyMapping = {}
 var gameKeyMapping = {};
 

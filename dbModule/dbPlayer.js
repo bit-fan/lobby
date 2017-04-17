@@ -1,7 +1,7 @@
 var db = require('../Server/schema');
 var Q = require('q');
-var util = require('../util/util');
-var app = require('../app');
+var util = require('../Server/util/util');
+var app = require('../lobby');
 var generalConst = require('../Server/const/general');
 var dbFunc = {
     getPlayer: function (query) {
@@ -28,17 +28,17 @@ var socket = {
             name: a
         }).then(function (data) {
             console.log(data);
-            return data;
+            return data.length;
         })
     },
 
     createPlayer: function (obj) {
-        console.log('createPlayer', obj);
         obj.iconHash = util.md5(obj.name);
         var a = new db.player(obj);
         return a.save().then(function (data) {
-            console.log('new doc', data);
-            return data;
+            return Q.resolve(data);
+        }, err => {
+            return Q.reject({error: err});
         })
     },
 
