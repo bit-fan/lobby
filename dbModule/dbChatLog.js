@@ -1,8 +1,6 @@
 var db = require('../Server/schema');
 var Q = require('q');
 var util = require('../Server/util/util');
-var app = require('../lobby');
-var dbPlayer = require('../dbModule/dbPlayer');
 
 var dbChatLog = {
     send: function (req, socket) {

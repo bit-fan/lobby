@@ -1,7 +1,6 @@
 var db = require('../Server/schema');
 var Q = require('q');
 var util = require('../Server/util/util');
-var app = require('../lobby');
 var generalConst = require('../Server/const/general');
 var constSab = require('../Server/const/saboteur');
 // var sock = require('../Util/SocketHandler');

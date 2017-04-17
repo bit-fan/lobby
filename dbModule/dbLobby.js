@@ -4,8 +4,6 @@
 var db = require('../Server/schema');
 var Q = require('q');
 var util = require('../Server/util/util');
-var app = require('../lobby');
-var sockFunc = require('../Server/util/socketHandler');
 const allGameObj = require('../Server/const/games').allGames;
 const gameConst = require('../Server/const/games').gameConst;
 util.init();
@@ -63,7 +61,6 @@ var socket = {
     joinGame: function (req, socket) {
         console.log('req', req);
         var playerId = req.profile.playerId;
-        // sockFunc.updateUsr('game', socket.id, playerId, req.gameId);
         return {
             gameId: req.gameId,
             minPlayer: gameConst[req.gameId].min,

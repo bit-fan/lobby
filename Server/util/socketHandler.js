@@ -1,14 +1,14 @@
 var Q = require('q');
 var dbPlayer = require('../../dbModule/dbPlayer.js');
-var lobby = require('../../dbModule/lobby.js');
+var dbLobby = require('../../dbModule/dbLobby.js');
 var dbTable = require('../../dbModule/dbTable.js');
 var dbSaboteur = require('../../dbModule/dbSaboteur.js');
-var commonKeyMapping = {}
+var commonKeyMapping = {};
 var gameKeyMapping = {};
 
 function addCommonSocketKey(obj) {
     for (var key in obj) {
-        // console.log('added', key);
+        console.log('added', key);
         if (commonKeyMapping[key]) {
             console.error('duplicate socketAction', key, obj[key])
         } else {
@@ -27,7 +27,7 @@ function addGameSocketKey(gameKey, socketsObj) {
     }
 }
 addCommonSocketKey(dbPlayer.socket);
-addCommonSocketKey(lobby.socket);
+addCommonSocketKey(dbLobby.socket);
 addCommonSocketKey(dbTable.socket);
 addGameSocketKey('saboteur', dbSaboteur.socket);
 

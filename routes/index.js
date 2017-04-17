@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 var dbPlayer = require('./../dbModule/dbPlayer');
 var dbTable = require('./../dbModule/dbTable');
-var dbLobby = require('./../dbModule/lobby');
+var dbLobby = require('./../dbModule/dbLobby');
 var Q = require('q');
 var app = require('../lobby');
 // var player = require('../bin/util/player');
@@ -38,7 +38,7 @@ router.get('/lobby', function (req, res, next) {
             name: cook.playerId, token: cook.token
         }).then(function (data) {
             console.log('found', data);
-            console.log(new Date(data[0].tokenTime).getTime(), new Date().getTime());
+            console.log('tokenTime', new Date(data[0].tokenTime).getTime(), new Date().getTime());
             if (new Date(data[0].tokenTime).getTime() >= new Date().getTime()) {
                 res.cookie('serverIp', getIp(req), {
                     maxAge: 900000, httpOnly: true
@@ -47,7 +47,7 @@ router.get('/lobby', function (req, res, next) {
                     maxAge: 900000, httpOnly: true
                 });
                 res.render('lobby', {
-                    title: 'Lobby'
+                    title: 'Lobby', serverIp: getIp(req), serverLocalIp: getIp()
                 });
             }
         })
