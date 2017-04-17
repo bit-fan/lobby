@@ -34,7 +34,8 @@ block content
                         .form-group
                             label.control-label(tt='password')
                             input#signInPassword.form-control(type='password')
-                        button#submitSignIn(tt='submit')
+                        button#submitSignIn.margin-right-5(tt='submit')
                         button(tt='Login As Guest')
+                        label#loginResult.text-danger
     //script(type='text/javascript' src='util/jQueryUtil.js')
     script(type='text/javascript' src='/js/login.js')

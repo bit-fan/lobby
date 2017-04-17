@@ -39,15 +39,20 @@ require(['js/init'], function (tool) {
     $('#submitSignIn').on('click', function () {
         var name = $('#signInID').val();
         var pass = $('#signInPassword').val();
+        $('#loginResult').html('');
         console.log(name, pass);
         skt.send('signInPlayer', {
             name: name, password: pass
         }, function (res) {
             console.log('res', res);
-            $().setCookie('token', res.token, 1);
-            $().setCookie('playerId', name, 1);
-            $().setCookie('iconHash', res.iconHash, 1);
-            $(location).attr('href', res.nextPage);
+            if (res) {
+                $().setCookie('token', res.token, 1);
+                $().setCookie('playerId', name, 1);
+                $().setCookie('iconHash', res.iconHash, 1);
+                $(location).attr('href', res.nextPage);
+            } else {
+                $('#loginResult').tt('invalid login');
+            }
         })
     })
 

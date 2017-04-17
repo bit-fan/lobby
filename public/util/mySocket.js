@@ -62,7 +62,7 @@ mySocket.prototype.createGameSocket = function (gameId, tableId, funcObj) {
     $('#gameSystemLogContent').html('');
     self.socket.on(gameId + '_log', function (logData) {
         console.log('key', logData);
-        var newLine = $('<div>').html(JSON.stringify(logData));
+        var newLine = $('<div>').addClass('logLine').html(JSON.stringify(logData));
         $('#gameSystemLogContent').append(newLine);
         if (funcObj[gameId + '_log']) {
             funcObj[gameId + '_log'].call(this, logData);

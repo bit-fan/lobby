@@ -73,17 +73,16 @@ require(['js/init'], function (tool) {
     var gameData = {
         map: {}, currentAction: {}, curTurn: null,
         sound: {
-            addPath: $('<audio>', {src: 'src/sound/saboteur/addPath.wav'}),
-            breakLantern: $('<audio>', {src: 'src/sound/saboteur/breakLantern.wav'}),
-            breakPick: $('<audio>', {src: 'src/sound/saboteur/breakPick.wav'}),
-            breakWagon: $('<audio>', {src: 'src/sound/saboteur/breakWagon.wav'}),
-            repairTool: $('<audio>', {src: 'src/sound/saboteur/repairTool.wav'}),
-            reveal: $('<audio>', {src: 'src/sound/saboteur/reveal.wav'}),
-            rockFall: $('<audio>', {src: 'src/sound/saboteur/rockFall.wav'}),
-            discard: $('<audio>', {src: 'src/sound/saboteur/discard.wav'}),
+            addPath: $('<audio>', {src: 'src/sound/saboteur/addPath.mp3'}),
+            breakLantern: $('<audio>', {src: 'src/sound/saboteur/breakLantern.mp3'}),
+            breakPick: $('<audio>', {src: 'src/sound/saboteur/breakPick.mp3'}),
+            breakWagon: $('<audio>', {src: 'src/sound/saboteur/breakWagon.mp3'}),
+            repairTool: $('<audio>', {src: 'src/sound/saboteur/repairTool.mp3'}),
+            reveal: $('<audio>', {src: 'src/sound/saboteur/reveal.mp3'}),
+            rockFall: $('<audio>', {src: 'src/sound/saboteur/rockFall.mp3'}),
+            discard: $('<audio>', {src: 'src/sound/saboteur/discard.mp3'}),
             // $(au)[0].play();
-        },
-        showPreview: false
+        }
     };
     const imgPrefix = 'src/img/saboteur/';
 
@@ -155,17 +154,12 @@ require(['js/init'], function (tool) {
 
         //show card preview
         $('#gamePanel').on('click', '[cardId]', function () {
-            if (gameData.showPreview) {
-                $('#cardPreview').addClass('collapse');
-                gameData.showPreview = false;
-            } else {
-                var cardId = $(this).attr('cardId');
-                if (fondationData.cardInfo && fondationData.cardInfo[cardId]) {
-                    $('#cardPreview').removeClass('collapse');
-                    gameData.showPreview = true;
-                    $('#cardPreview').attr('src', imgPrefix + fondationData.cardInfo[cardId].img).fadeOut(2000);
-                }
+            var cardId = $(this).attr('cardId');
+            if (fondationData.cardInfo && fondationData.cardInfo[cardId]) {
+                $('#cardPreview').removeClass('collapse');
+                $('#cardPreview').attr('src', imgPrefix + fondationData.cardInfo[cardId].img).stop().fadeIn(0).delay(1000).fadeOut(300);
             }
+
             return true;
         })
         //choose my action card
@@ -178,14 +172,21 @@ require(['js/init'], function (tool) {
             console.log(fondationData.cardInfo[cardId]);
             var cardInfo = fondationData.cardInfo[cardId] || {};
             var serialNo = $(this).attr('serialNo');
-            var linkArr = cardInfo.link;
-            var passArr = cardInfo.pass;
-            if (linkArr && passArr) {
-                if (linkArr[0] == linkArr[2] && linkArr[1] == linkArr[3] &&
-                    passArr[2] == passArr[4] && passArr[3] == passArr[5]) {
-                    $('#rotateBtn').removeClass('collapse');
+            if (cardInfo.cardType == 'map') {
+                var linkArr = cardInfo.link;
+                var passArr = cardInfo.pass;
+                if (linkArr && passArr) {
+                    if (linkArr[0] == linkArr[2] && linkArr[1] == linkArr[3] &&
+                        passArr[2] == passArr[4] && passArr[3] == passArr[5]) {
+                        $('#rotateBtn').addClass('collapse');
+                    } else {
+                        $('#rotateBtn').removeClass('collapse');
+                    }
                 }
+            } else {
+                $('#rotateBtn').addClass('collapse');
             }
+
             $('#discardBtn').removeClass('collapse');
 
             gameData.actionData = {cardSerialNo: serialNo, cardId: cardId, cardInfo: cardInfo};
@@ -231,12 +232,18 @@ require(['js/init'], function (tool) {
                 var y = parseInt(matrix[1]);
                 var valid = checkValidPath({x: x, y: y, link: gameData.currentAction.linkArr}, gameData.map);
                 console.log(x, y, valid);
-                $('#submitActionBtn').removeClass('collapse');
-                gameData.actionData.type = 'addPath';
-                gameData.actionData.targetX = x;
-                gameData.actionData.targetY = y;
                 $('#desktop').find('.boxShadowAniGreen').removeClass('boxShadowAniGreen');
-                $(this).addClass('boxShadowAniGreen');
+                $('#desktop').find('.boxShadowAniRed').removeClass('boxShadowAniRed');
+                if (valid) {
+                    $('#submitActionBtn').removeClass('collapse');
+                    gameData.actionData.type = 'addPath';
+                    gameData.actionData.targetX = x;
+                    gameData.actionData.targetY = y;
+                    $(this).addClass('boxShadowAniGreen');
+                } else {
+                    $('#submitActionBtn').addClass('collapse');
+                    $(this).addClass('boxShadowAniRed')
+                }
             }
             return true;
         })
@@ -480,12 +487,14 @@ require(['js/init'], function (tool) {
     //example checkValidPath({link:[4],x,y},,gameData.map)
     function checkValidPath(newCardObj, mapObj) {
         var currrentMatr = newCardObj.x + '#' + newCardObj.y;
+        var isBoundary = false;
         if (!checkLink(0, -1) || !checkLink(0, 1) || !checkLink(-1, 0) || !checkLink(1, 0)) {
             return false;
-        } else return true;
+        } else return isBoundary;
         function checkLink(x, y) {
             var cardKey = getMatrixKey(currrentMatr, x, y);
             if (mapObj[cardKey]) {
+                isBoundary = true;
                 if (x == 0 && y == -1) {
                     return newCardObj.link[1] == mapObj[cardKey].info.link[3]
                 } else if (x == 0 && y == 1) {
