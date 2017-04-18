@@ -79,3 +79,12 @@
     box-shadow: 0px 0px 5px 5px #dec7cf, inset 0px 0px 3px 3px #ff005b;
     background: repeating-radial-gradient(#b1c7bf, #e3cdcd 10%);
 }
+
+.rotate180Ani {
+    transform: rotate(180deg);
+    transition: transform 500ms linear;
+}
+
+.rotate180 {
+    transform: rotate(180deg);
+}

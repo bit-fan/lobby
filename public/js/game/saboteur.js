@@ -302,6 +302,10 @@ require(['js/init'], function (tool) {
             }
             return true;
         })
+        $('#gamePanel').on('click', '#rotateBtn', function () {
+            if (!gameData.actionData.cardSerialNo) return;
+            $('#myCards').find('[serialNo=' + card.serialNo + ']').toggleClass('rotate180');
+        });
     }
 
     function getFoundationData(callback) {
