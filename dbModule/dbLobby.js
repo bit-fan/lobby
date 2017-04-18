@@ -74,7 +74,7 @@ var socket = {
             tableId: reqData.tableId
         }).lean()
             .then(tableData => {
-                console.log(tableData.players);
+                console.log('tableData.players', tableData.players);
                 var hasPlayer = tableData.players.getKeyItem('playerId', reqData.profile.playerId);
                 var lengthValid = tableData.players.length < gameConst[gameId].max;
                 if (hasPlayer.length == 0 && lengthValid) {
@@ -84,13 +84,11 @@ var socket = {
                         isReady: false,
                         socketId: socket.id,
                     });
-                    console.log('update', tableData.players);
                     return db.table.update({
                         _id: tableData._id
                     }, {
                         players: tableData.players
                     }).then(result => {
-                        console.log(result);
                         socket.broadcast.emit('updateTable', {
                             gameId: reqData.gameId,
                             type: 'player'
@@ -121,13 +119,11 @@ var socket = {
                         item.isReady = false;
                         return item;
                     })
-                    console.log('update', tableData.players);
                     return db.table.update({
                         _id: tableData._id
                     }, {
                         players: tableData.players
                     }).then(result => {
-                        console.log(result);
                         socket.broadcast.emit('updateTable', {
                             gameId: reqData.gameId,
                             type: 'player'

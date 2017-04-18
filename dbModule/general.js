@@ -24,7 +24,6 @@ function resetGameTable(gameId) {
 }
 func.initDB = function () {
     for (var i in allGamesObj) {
-        console.log('i', i);
         allGamesObj[i].forEach(function (gameObj) {
             resetGameTable(gameObj.id);
         })

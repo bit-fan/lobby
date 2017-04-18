@@ -15,7 +15,6 @@ var dbTable = {
         var queryObj = {
             gameId: req.query.gameId
         }
-        console.log(queryObj);
         return db.table.find(queryObj);
     }
 }

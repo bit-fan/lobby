@@ -27,7 +27,6 @@ var socket = {
         return db.player.find({
             name: a
         }).then(function (data) {
-            console.log(data);
             return data.length;
         })
     },

@@ -55,7 +55,7 @@ router.get('/lobby', function (req, res, next) {
 
 });
 router.get('/playGame', function (req, res, next) {
-    console.log(req.param, req.cookies);
+    console.log('/playGame', req.param, req.cookies);
     var cookies = req.cookies;
     dbTable.dbFunc.getQueryOneTable({
         gameId: cookies.selectGame,
@@ -63,7 +63,6 @@ router.get('/playGame', function (req, res, next) {
         tableId: cookies.tableId
     }).then(
         table => {
-            console.log('table', table);
             if (table) {
                 res.render('./game/' + cookies.selectGame, {
                     title: cookies.selectGame
@@ -74,7 +73,7 @@ router.get('/playGame', function (req, res, next) {
 })
 //test sab
 router.get('/saboteur', function (req, res, next) {
-    console.log(req.param, req.cookies);
+    console.log('/saboteur', req.param, req.cookies);
     var cookies = req.cookies;
     var playerArr = [{
         playerId: cookies.playerId,
@@ -95,7 +94,6 @@ router.get('/saboteur', function (req, res, next) {
             Q.resolve(dbLobby.dbFunc.setupTable('saboteur', cookies.tableId, util.generateToken()))
                 .then(
                     game => {
-                        console.log('game', game);
                         res.render('./game/saboteur', {
                             title: 'saboteur'
                         });

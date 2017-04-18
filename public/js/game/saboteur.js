@@ -15,7 +15,6 @@ require(['js/init'], function (tool) {
                 setupGame()
             }, 100);
         }
-        console.log(skt, skt.socket, skt.socket.n);
         $().setCookie('socketId', skt.socket.id, 1);
         skt.updateProfile({
             playerId: $().getCookie('playerId'),
@@ -68,7 +67,6 @@ require(['js/init'], function (tool) {
         }
     }
     var gameSkt = skt.createGameSocket('saboteur', $().getCookie('tableId'), funcObj);
-    console.log(gameSkt);
     var fondationData = {cardInfo: {}};
     var gameData = {
         map: {}, currentAction: {}, curTurn: null,
@@ -169,7 +167,7 @@ require(['js/init'], function (tool) {
 
             $('#myCards').find('.boxShadowAniRed').removeClass('boxShadowAniRed');
             $(this).addClass('boxShadowAniRed')
-            console.log(fondationData.cardInfo[cardId]);
+            console.log('cardId', cardId, fondationData.cardInfo[cardId]);
             var cardInfo = fondationData.cardInfo[cardId] || {};
             var serialNo = $(this).attr('serialNo');
             if (cardInfo.cardType == 'map') {
@@ -259,7 +257,7 @@ require(['js/init'], function (tool) {
                     tool = 'P'
                 }
                 var playerId = $(this).closest('[playerId]').attr('playerId');
-                console.log(tool);
+                console.log('tool', tool);
                 if (gameData.currentAction.availableTool.indexOf(tool) == -1) {
                     console.log('cannot repair this tool');
                 } else {
@@ -277,7 +275,6 @@ require(['js/init'], function (tool) {
             if (gameData.currentAction.choosingOtherPlayer) {
                 var playerId = $(this).find('img.idenIcon').attr('playerId');
                 var playerObj = fondationData.players[playerId];
-                console.log(gameData.currentAction.tool);
                 if (playerObj && playerObj.status[gameData.currentAction.tool]) {
                     console.log('invalid');
                 } else {
@@ -294,10 +291,8 @@ require(['js/init'], function (tool) {
             if (gameData.currentAction.choosingGoalCard) {
                 var cardId = $(this).attr('cardId');
                 if (cardId == 'goalBack') {
-                    console.log($(this).attr('keyStr'));
                     var matrix = $(this).attr('keyStr').split('#');
                     var y = parseInt(matrix[1]) + gameData.mapSize.y0 + 1;
-                    console.log(x, y);
                     $('#submitActionBtn').removeClass('collapse');
                     gameData.actionData.type = 'reveal';
                     gameData.actionData.targetX = 8;
@@ -439,7 +434,6 @@ require(['js/init'], function (tool) {
         var seatNum = data.UIseatNo;
 
         var box = $('.otherPlayer[seatNo="' + seatNum + '"]').attr('playerId', data.playerId);
-        console.log(box);
         var div = $('#playerHorDiv').copy();
         div.find('.playerIcon').attr('data-jdenticon-hash', data.iconHash);
         var idenSrcStr = '';
@@ -471,7 +465,7 @@ require(['js/init'], function (tool) {
         if (seatNum == 1) {
             //draw cards
             $('#myCards').html('');
-            console.log(gameData.myHand);
+            console.log('myHand', gameData.myHand);
             gameData.myHand.forEach(card => {
                 var cardImg = $('<img>', {src: imgPrefix + fondationData.cardInfo[card.cardId].img})
                     .width(fondationData.cardWidth)

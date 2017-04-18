@@ -1,6 +1,5 @@
 (function () {
     define(['../util/userLang'], function (langObj) {
-        console.log(langObj);
         var curChoice = 1;
         var ju = {};
         $.fn.setLang = function (opt) {

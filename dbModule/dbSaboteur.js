@@ -36,7 +36,6 @@ var dbFunc = {
             seatNo.push(i + 1);
         }
         seatNo.pop();
-        console.log(idenArr, seatNo);
         newTable.players = players.map(item => {
             var iden = idenArr.splice(Date.now() % idenArr.length, 1)[0];
             var seat = seatNo.splice(Date.now() % seatNo.length, 1)[0];
@@ -117,7 +116,6 @@ var dbFunc = {
         })
         // console.log('newTable.cards', newTable.cards);
         function save(newTable) {
-            console.log('db', db.saboteur);
             if (!db.saboteur) {
                 return setTimeout(function () {
                     save(newTable)
@@ -125,7 +123,7 @@ var dbFunc = {
             }
             var a = new db.saboteur(newTable);
             return a.save().then(function (data) {
-                console.log('new saboteur', data);
+                console.log('new saboteur created');
                 return data;
             }, err => {
                 console.log('create err', err);
@@ -196,25 +194,21 @@ var dbFunc = {
         })
         if (resultArr && resultArr.length == 1) return resultArr[0];
         return null;
-    }
-    ,
+    },
     getPlayerObjByPlayerId: function (players, playerId) {
         var resultArr = players.filter(player => {
             return player.playerId == playerId;
         })
         if (resultArr && resultArr.length == 1) return resultArr[0];
         return null;
-    }
-    ,
+    },
 
     getReversePass: function (pass) {
         return [pass[0], pass[1], pass[4], pass[5], pass[2], pass[3]]
-    }
-    ,
+    },
     getReverseLink: function (link) {
         return [link[2], link[3], link[0], link[1]]
-    }
-    ,
+    },
     generateMap: function (deck) {
         var mapObj = {};
         deck.cards.forEach(node => {
@@ -231,22 +225,19 @@ var dbFunc = {
             }
         })
         return mapObj;
-    }
-    ,
+    },
     getCardBySerialNo: function (num, deck) {
         if (!deck) return null;
         var result = deck.getKeyItem('serialNo', num);
         return result ? result[0] : null;
-    }
-    ,
+    },
     getMapCardSerialNoByMatrix: function (deck, x, y) {
         var resultArr = deck.filter(card => {
             return (card.cardType == 'map' && card.info.where == 'map' && card.info.x == x && card.info.y == y)
         })
         if (resultArr && resultArr.length == 1) return resultArr[0];
         return null;
-    }
-    ,
+    },
 
     checkNewPathValid: function (newCard, isRotate, map, x, y) {
         if (newCard.cardType != 'map')return false;
@@ -274,8 +265,7 @@ var dbFunc = {
         var leftOK = checkLink(newCardInfo.link[2], map, getmatrixKey(x - 1, y), 0);
         var bottomOK = checkLink(newCardInfo.link[3], map, getmatrixKey(x, y + 1), 1);
         return rightOK && topOK && leftOK && bottomOK;
-    }
-    ,
+    },
     /// UPDATE several actions
     addPathCard: function (socket, profile, serialNo, isRotate, targetX, targetY) {
         var tableId = profile.tableId;
@@ -295,8 +285,7 @@ var dbFunc = {
                 } else return Q.reject('table not found');
             }
         })
-    }
-    ,
+    },
     playRockFallCard: function (socket, profile, serialNo, targetX, targetY) {
         var tableId = profile.tableId;
         return dbFunc.getTable(tableId).then(tableData => {
@@ -318,8 +307,7 @@ var dbFunc = {
                 } else return Q.reject('table not found');
             }
         })
-    }
-    ,
+    },
     playToolCard: function (socket, profile, serialNo, targetPlayerId, whichTool) {
         var tableId = profile.tableId;
         return dbFunc.getTable(tableId).then(tableData => {
@@ -346,8 +334,7 @@ var dbFunc = {
                 })
             }
         })
-    }
-    ,
+    },
     playRevealCard: function (socket, profile, serialNo, y) {
         var tableId = profile.tableId;
         return dbFunc.getTable(tableId).then(tableData => {
@@ -364,8 +351,7 @@ var dbFunc = {
                 })
             } else return Q.reject();
         })
-    }
-    ,
+    },
     playerDiscardCard: function (socket, profile, serialNo) {
         var tableId = profile.tableId;
         return dbFunc.getTable(tableId).then(tableData => {
@@ -377,8 +363,7 @@ var dbFunc = {
                 })
             } else return Q.reject();
         })
-    }
-    ,
+    },
     logAction: function (socket, tableData, tableId, playerId, actionKey, actionStr, target) {
         var newSeatNo = (tableData.curTurn + 1) % tableData.players.length;
         var cardObj = dbFunc.getCardFromDeck(tableData.cards);
@@ -419,8 +404,7 @@ var dbFunc = {
             }, err => {
                 console.log('create err', err);
             })
-    }
-    ,
+    },
     checkCompletePath: function (map) {
         var pathArr = [{
             x: 0, y: 0, pass: [true, true, true, true, true, true], entry: [true, true, true, true]

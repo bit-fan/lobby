@@ -52,7 +52,6 @@ util.generateToken = function (leng) {
 
 util.init = function () {
     Array.prototype.getKeyItem = function (key, val) {
-        console.log(this)
         var result = [];
         this.forEach(item => {
             if (item && key && item[key] && item[key] == val) {
