@@ -574,7 +574,8 @@ var dbSaboteur = {
                             where: 'map',
                             info: {
                                 x: card.info.x,//if where==map
-                                y: card.info.y,//if where==map
+                                y: card.info.y,//if where==map,
+                                link: [1, 1, 1, 1]
                             }
                         }
                     } else {

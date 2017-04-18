@@ -22,11 +22,15 @@ function resetGameTable(gameId) {
         }).then()
     }
 }
+function resetSaboteur() {
+    db.saboteur.remove({}).then();
+}
 func.initDB = function () {
     for (var i in allGamesObj) {
         allGamesObj[i].forEach(function (gameObj) {
             resetGameTable(gameObj.id);
         })
     }
+    resetSaboteur();
 }
 module.exports = func;

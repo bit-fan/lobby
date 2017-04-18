@@ -3,7 +3,7 @@ require(['js/init'], function (tool) {
     var serverIp = $().getCookie('serverIp');
     var serverLocalIp = $().getCookie('serverLocalIp');
 
-    var skt = new mySocket(tool.io, tool.io(serverIp + ':80'));
+    var skt = null;//new mySocket(tool.io, tool.io(serverIp + ':80'));
     if (!skt) {
         skt = new mySocket(tool.io, tool.io(serverLocalIp + ':5728'));
     }
@@ -69,7 +69,7 @@ require(['js/init'], function (tool) {
     var gameSkt = skt.createGameSocket('saboteur', $().getCookie('tableId'), funcObj);
     var fondationData = {cardInfo: {}};
     var gameData = {
-        map: {}, currentAction: {}, curTurn: null,
+        map: {}, currentAction: {}, curTurn: null, isCardRotate: {},
         sound: {
             addPath: $('<audio>', {src: 'src/sound/saboteur/addPath.mp3'}),
             breakLantern: $('<audio>', {src: 'src/sound/saboteur/breakLantern.mp3'}),
@@ -171,8 +171,8 @@ require(['js/init'], function (tool) {
             var cardInfo = fondationData.cardInfo[cardId] || {};
             var serialNo = $(this).attr('serialNo');
             if (cardInfo.cardType == 'map') {
-                var linkArr = cardInfo.link;
-                var passArr = cardInfo.pass;
+                var linkArr = gameData.isCardRotate[serialNo] ? getRotateLinkArr(cardInfo.link) : cardInfo.link;
+                var passArr = gameData.isCardRotate[serialNo] ? getRotatePassArr(cardInfo.pass) : cardInfo.pass;
                 if (linkArr && passArr) {
                     if (linkArr[0] == linkArr[2] && linkArr[1] == linkArr[3] &&
                         passArr[2] == passArr[4] && passArr[3] == passArr[5]) {
@@ -197,6 +197,7 @@ require(['js/init'], function (tool) {
             } else if (cardInfo.cardType == 'func' && cardId.indexOf('_') == -1) {
                 gameData.currentAction = {choosingTool: true, availableTool: cardId};
             } else if (cardInfo.cardType == 'map') {
+                gameData.actionData.isRotate = gameData.isCardRotate[serialNo] || false;
                 gameData.currentAction = {chooingEmptyPath: true, linkArr: linkArr};
             } else {
                 return true
@@ -228,7 +229,11 @@ require(['js/init'], function (tool) {
                 var matrix = $(this).attr('keyStr').split('#');
                 var x = parseInt(matrix[0]);
                 var y = parseInt(matrix[1]);
-                var valid = checkValidPath({x: x, y: y, link: gameData.currentAction.linkArr}, gameData.map);
+                var valid = checkValidPath({
+                    x: x,
+                    y: y,
+                    link: gameData.currentAction.linkArr
+                }, gameData.map);
                 console.log(x, y, valid);
                 $('#desktop').find('.boxShadowAniGreen').removeClass('boxShadowAniGreen');
                 $('#desktop').find('.boxShadowAniRed').removeClass('boxShadowAniRed');
@@ -237,6 +242,7 @@ require(['js/init'], function (tool) {
                     gameData.actionData.type = 'addPath';
                     gameData.actionData.targetX = x;
                     gameData.actionData.targetY = y;
+                    gameData.actionData.isRotate = gameData.actionData.isRotate || false;
                     $(this).addClass('boxShadowAniGreen');
                 } else {
                     $('#submitActionBtn').addClass('collapse');
@@ -302,10 +308,28 @@ require(['js/init'], function (tool) {
             }
             return true;
         })
+        //rotate card
         $('#gamePanel').on('click', '#rotateBtn', function () {
             if (!gameData.actionData.cardSerialNo) return;
-            $('#myCards').find('[serialNo=' + card.serialNo + ']').toggleClass('rotate180');
+            console.log('[serialNo=' + gameData.actionData.cardSerialNo + ']');
+            console.log($('#myCards').find('[serialNo=' + gameData.actionData.cardSerialNo + ']'));
+            $('#myCards').find('[serialNo=' + gameData.actionData.cardSerialNo + ']').toggleClass('rotate180');
+            gameData.isCardRotate[gameData.actionData.cardSerialNo] = !gameData.isCardRotate[gameData.actionData.cardSerialNo];
+            gameData.currentAction.linkArr = getRotateLinkArr(gameData.currentAction.linkArr);
+            gameData.actionData.isRotate = !gameData.actionData.isRotate;
         });
+    }
+
+    function getRotateLinkArr(arr) {
+        if (arr && arr.length == 4) {
+            return [arr[2], arr[3], arr[0], arr[1]]
+        } else return [];
+    }
+
+    function getRotatePassArr(arr) {
+        if (arr && arr.length == 6) {
+            return [arr[0], arr[1], arr[4], arr[5], arr[2], arr[3]]
+        } else return [];
     }
 
     function getFoundationData(callback) {
@@ -417,6 +441,7 @@ require(['js/init'], function (tool) {
                         src: src,
                         class: 'vTop'
                     }).attr('cardId', cardId).attr('keyStr', keyStr).addClass('pathCard');
+                    newCard.toggleClass('rotate180', gameData.map[keyStr].info.isRotate);
                     $(newDiv).append(newCard)
                 } else {
                     var empty = $('<div>', {
@@ -476,6 +501,7 @@ require(['js/init'], function (tool) {
                     .height(fondationData.cardHeight)
                     .addClass('myCard margin-right-5')
                     .attr('serialNo', card.serialNo)
+                    .toggleClass('rotate180', gameData.isCardRotate[card.serialNo] || false)
                     .attr('cardId', card.cardId);
                 $('#myCards').append(cardImg);
             })
