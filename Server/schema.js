@@ -74,7 +74,7 @@ db.init = function (mongoose) {
             where: String,//deck,hand,discard,map,removed,used
             info: {
                 _id: false,
-                player: Number,//if where==player
+                player: Number,//if where==hand
                 x: Number,//if where==map
                 y: Number,//if where==map
                 isRotate: Boolean, //if where==map

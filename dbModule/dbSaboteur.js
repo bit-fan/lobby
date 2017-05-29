@@ -380,7 +380,7 @@ var dbFunc = {
                 tableId: tableId,
                 'cards.serialNo': cardObj.serialNo
             }, {
-                'cards.$.where': 'player',
+                'cards.$.where': 'hand',
                 'cards.$.info.player': newSeatNo,
                 curTurn: newSeatNo,
             })
@@ -587,8 +587,8 @@ var dbSaboteur = {
                             info: {
                                 x: card.info.x,//if where==map
                                 y: card.info.y,//if where==map
-                                link: card.info.link,
-                                pass: card.info.pass,
+                                link:  card.info.isRotate ? dbFunc.getReverseLink(card.info.link) : card.info.link,
+                                pass: card.info.isRotate ? dbFunc.getReversePass(card.info.pass) : card.info.pass,
                                 isRotate: card.info.isRotate, //if where==map
                             }
                         }

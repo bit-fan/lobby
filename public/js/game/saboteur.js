@@ -408,7 +408,6 @@ require(['js/init'], function (tool) {
                     (fondationData.players[player].seatNo - playerPositionOffset + res.players.length) % res.players.length;
                 drawPlayer(fondationData.players[player]);
             }
-            fondationData.maxHand = res.maxHand;
         });
     }
 
@@ -473,7 +472,7 @@ require(['js/init'], function (tool) {
         } else {
             idenSrcStr = fondationData.cardInfo['idBack'].img;
         }
-        console.log('fondationData', fondationData);
+        // console.log('fondationData', fondationData);
         div.find('img.idenIcon')
             .attr('src', imgPrefix + idenSrcStr)
             .attr('playerId', data.playerId)
