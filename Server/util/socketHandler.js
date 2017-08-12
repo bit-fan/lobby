@@ -8,7 +8,6 @@ var gameKeyMapping = {};
 
 function addCommonSocketKey(obj) {
     for (var key in obj) {
-        console.log('added', key);
         if (commonKeyMapping[key]) {
             console.error('duplicate socketAction', key, obj[key])
         } else {
